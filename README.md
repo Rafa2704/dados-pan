@@ -116,7 +116,7 @@
     UPDATE base_geral
     SET chave_geral_nome = CONCAT("﻿cpf_anonimo", '-', LOWER(primeiro_nome));
     ```
- ## 5. Relacionamentos Finais:
+## 5. Relacionamentos Finais:
 
 ### Explicação:
 
@@ -142,6 +142,65 @@ LEFT JOIN
     anonimizada_uf uf ON CONCAT(bg.numeros_meio_cpf, '-', bg.sobrenome_email) = uf.chave_uf_anoni
 WHERE 
     an.chave_geral_nome IS NOT NULL AND uf.orgsup_lotacao_instituidor_pensao IS NOT NULL;
+```
+## 6. Conexão Python com Banco de dados: 
 
-  
+### Script Python para Conexão com Banco de Dados e Criação de Indicadores:
 
+
+      ```python
+      import psycopg2
+      import pandas as pd
+      
+      # Conectar ao banco de dados
+      conn = psycopg2.connect(
+          dbname="postgres",
+          user="postgres",
+          password="xxxxxx",
+          host="xxxxxxxxxxxxx"
+      )
+      
+      # Criar um cursor
+      cur = conn.cursor()
+      
+      # Executar a consulta SQL
+      cur.execute("""
+          SELECT 
+              concat(bg.numeros_meio_cpf, '-', bg.primeiro_nome_email) as chave_nome,
+              concat(bg.numeros_meio_cpf, '-', bg.sobrenome_email) as chave_uf,
+              bg."﻿cpf",
+              bg.nome_completo,
+              bg.uf,
+              bg.dt_nascimento,
+              an.renda,
+              uf.orgsup_lotacao_instituidor_pensao
+          FROM base_geral bg 
+          LEFT JOIN anonimizada_nome an ON concat(bg.numeros_meio_cpf, '-', bg.primeiro_nome_email) = an.chave_geral_nome
+          LEFT JOIN anonimizada_uf uf ON concat(bg.numeros_meio_cpf, '-', bg.sobrenome_email) = uf.chave_uf_anoni
+          WHERE an.chave_geral_nome IS NOT NULL AND uf.orgsup_lotacao_instituidor_pensao IS NOT NULL
+      """)
+      
+      # Obter os resultados
+      rows = cur.fetchall()
+      
+      # Fechar o cursor e a conexão
+      cur.close()
+      conn.close()
+      
+      # Criar um DataFrame com os resultados
+      df = pd.DataFrame(rows, columns=[
+          'chave_nome',
+          'chave_uf',
+          'cpf',
+          'nome_completo',
+          'uf',
+          'dt_nascimento',
+          'renda',
+          'orgsup_lotacao_instituidor_pensao'
+      ])
+      
+      # Exibir o DataFrame
+      display(df)
+      
+      # Exibir o DataFrame
+      display(df)
