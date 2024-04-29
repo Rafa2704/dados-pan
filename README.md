@@ -34,58 +34,63 @@
        orgsup_lotacao_instituidor_pensao VARCHAR(255)
    );
 
-2. **Importação dos Arquivos CSV para as Tabelas:Explicação:**
-   
-  Três arquivos CSV foram importados para criar três tabelas no banco de dados.
-  Transformações e Criação de Chaves Primárias na Base "anonimizada_nome":
-    **Explicação:**
-  Na tabela "anonimizada_nome", foram realizadas transformações nos dados e criada uma chave primária para relacionar com outras tabelas.
-    
-  **Querys:**
-  ```sql
-      -- Transformação da coluna "cpf_anonimo" para remover asteriscos e espaços em branco
-        UPDATE anonimizada_nome
-        SET "﻿cpf_anonimo" = REPLACE(REPLACE("﻿cpf_anonimo", '*', ''), ' ', '');
-        
-        -- Criação da chave primária "chave_geral_nome"
-        ALTER TABLE anonimizada_nome
-        ADD COLUMN chave_geral_nome VARCHAR(255);
-        
-        UPDATE anonimizada_nome
-        SET chave_geral_nome = CONCAT("﻿cpf_anonimo", '-', LOWER(primeiro_nome)
-  );
+2. **Importação dos Arquivos CSV para as Tabelas: Explicação:**
 
+    Três arquivos CSV foram importados para criar três tabelas no banco de dados.
+    Transformações e Criação de Chaves Primárias na Base "anonimizada_nome":
+    
+    **Explicação:**
+    
+    Na tabela "anonimizada_nome", foram realizadas transformações nos dados e criada uma chave primária para relacionar com outras tabelas.
+
+    **Querys:**
+    ```sql
+    -- Transformação da coluna "cpf_anonimo" para remover asteriscos e espaços em branco
+    UPDATE anonimizada_nome
+    SET "﻿cpf_anonimo" = REPLACE(REPLACE("﻿cpf_anonimo", '*', ''), ' ', '');
+    
+    -- Criação da chave primária "chave_geral_nome"
+    ALTER TABLE anonimizada_nome
+    ADD COLUMN chave_geral_nome VARCHAR(255);
+    
+    UPDATE anonimizada_nome
+    SET chave_geral_nome = CONCAT("﻿cpf_anonimo", '-', LOWER(primeiro_nome));
+    ```
+    
 3. **Transformações e Criação de Chaves Primárias na Base "anonimizada_uf":**
 
     **Explicação:**
-  Assim como na tabela "anonimizada_nome", na tabela "anonimizada_uf" foram realizadas transformações nos dados e criada uma chave primária.
+    
+    Assim como na tabela "anonimizada_nome", na tabela "anonimizada_uf" foram realizadas transformações nos dados e criada uma chave primária.
 
-  **Querys:**
-  ```sql
-  ---- Transformação da coluna "cpf_anonimo" para remover asteriscos e espaços em branco
-  UPDATE anonimizada_uf
-  SET "﻿cpf_anonimo" = REPLACE(REPLACE("﻿cpf_anonimo", '*', ''), ' ', '');
-  
-  -- Criação da chave primária "chave_uf_anoni"
-  ALTER TABLE anonimizada_uf
-  ADD COLUMN chave_uf_anoni VARCHAR(255);
-  
-  UPDATE anonimizada_uf
-  SET chave_uf_anoni = CONCAT("﻿cpf_anonimo", '-', LOWER(ultimo_nome));
+    **Querys:**
+    ```sql
+    ---- Transformação da coluna "cpf_anonimo" para remover asteriscos e espaços em branco
+    UPDATE anonimizada_uf
+    SET "﻿cpf_anonimo" = REPLACE(REPLACE("﻿cpf_anonimo", '*', ''), ' ', '');
+    
+    -- Criação da chave primária "chave_uf_anoni"
+    ALTER TABLE anonimizada_uf
+    ADD COLUMN chave_uf_anoni VARCHAR(255);
+    
+    UPDATE anonimizada_uf
+    SET chave_uf_anoni = CONCAT("﻿cpf_anonimo", '-', LOWER(ultimo_nome));
+    ```
 
+4. **Atualização da Base "base_geral":**
 
-4. **Atualização da Base "base_geral":
-**Explicação:**
-Na tabela "base_geral", foi adicionada uma coluna para armazenar o sobrenome extraído dos endereços de e-mail para se relacionar com anonimizada_uf .
-Querys:
+    **Explicação:**
+    
+    Na tabela "base_geral", foi adicionada uma coluna para armazenar o sobrenome extraído dos endereços de e-mail para se relacionar com anonimizada_uf.
 
-  ```sql
--- Adição da coluna "sobrenome_email"
-ALTER TABLE base_geral
-ADD COLUMN sobrenome_email VARCHAR(255);
+    **Querys:**
+    ```sql
+    -- Adição da coluna "sobrenome_email"
+    ALTER TABLE base_geral
+    ADD COLUMN sobrenome_email VARCHAR(255);
 
--- Atualização da coluna "sobrenome_email" com o sobrenome extraído do endereço de e-mail
-UPDATE base_geral
-SET sobrenome_email = SUBSTRING(email, POSITION('.' IN email) + 1, POSITION('@' IN email) - POSITION('.' IN email) - 1);
+    -- Atualização da coluna "sobrenome_email" com o sobrenome extraído do endereço de e-mail
+    UPDATE base_geral
+    SET sobrenome_email = SUBSTRING(email, POSITION('.' IN email) + 1, POSITION('@' IN email) - POSITION('.' IN email) - 1);
+    ```
 
-  
