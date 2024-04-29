@@ -116,5 +116,32 @@
     UPDATE base_geral
     SET chave_geral_nome = CONCAT("﻿cpf_anonimo", '-', LOWER(primeiro_nome));
     ```
- 
+ ## 5. Relacionamentos Finais:
+
+### Explicação:
+
+A seguir está a consulta SQL que realiza os relacionamentos finais após as alterações feitas nas tabelas. Essa consulta une as tabelas `base_geral`, `anonimizada_nome` e `anonimizada_uf`, utilizando as chaves criadas para relacionamento.
+
+### Query:
+
+```sql
+SELECT 
+    CONCAT(bg.numeros_meio_cpf, '-', bg.primeiro_nome_email) AS chave_nome,
+    CONCAT(bg.numeros_meio_cpf, '-', bg.sobrenome_email) AS chave_uf,
+    bg."﻿cpf",
+    bg.nome_completo,
+    bg.uf,
+    bg.dt_nascimento,
+    an.renda,
+    uf.orgsup_lotacao_instituidor_pensao
+FROM 
+    base_geral bg 
+LEFT JOIN 
+    anonimizada_nome an ON CONCAT(bg.numeros_meio_cpf, '-', bg.primeiro_nome_email) = an.chave_geral_nome
+LEFT JOIN 
+    anonimizada_uf uf ON CONCAT(bg.numeros_meio_cpf, '-', bg.sobrenome_email) = uf.chave_uf_anoni
+WHERE 
+    an.chave_geral_nome IS NOT NULL AND uf.orgsup_lotacao_instituidor_pensao IS NOT NULL;
+
   
+
