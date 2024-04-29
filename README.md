@@ -81,10 +81,18 @@
 
     **Explicação:**
     
-    Na tabela "base_geral", foi adicionada uma coluna para armazenar o sobrenome extraído dos endereços de e-mail para se relacionar com anonimizada_uf.
+    Na tabela "base_geral", foram adicionadas novas colunas para armazenar informações adicionais relacionadas aos CPFs e e-mails.
 
     **Querys:**
     ```sql
+    -- Adicionando uma nova coluna para o primeiro nome no email
+    ALTER TABLE base_geral
+    ADD COLUMN primeiro_nome_email VARCHAR(255);
+
+    -- Atualizando a nova coluna com o primeiro nome do email
+    UPDATE base_geral
+    SET primeiro_nome_email = SPLIT_PART(email, '.', 1);
+
     -- Adição da coluna "sobrenome_email"
     ALTER TABLE base_geral
     ADD COLUMN sobrenome_email VARCHAR(255);
@@ -92,5 +100,21 @@
     -- Atualização da coluna "sobrenome_email" com o sobrenome extraído do endereço de e-mail
     UPDATE base_geral
     SET sobrenome_email = SUBSTRING(email, POSITION('.' IN email) + 1, POSITION('@' IN email) - POSITION('.' IN email) - 1);
-    ```
 
+    -- Adicionando uma nova coluna para os 6 números do meio do CPF
+    ALTER TABLE base_geral
+    ADD COLUMN numeros_meio_cpf VARCHAR(6);
+
+    -- Atualizando a nova coluna com os 6 números do meio do CPF
+    UPDATE base_geral
+    SET numeros_meio_cpf = SUBSTRING("﻿cpf", 4, 6);
+
+    -- Criação da chave primária "chave_geral_nome" para se relacionar com anonimizada_nome
+    ALTER TABLE base_geral
+    ADD COLUMN chave_geral_nome VARCHAR(255);
+
+    UPDATE base_geral
+    SET chave_geral_nome = CONCAT("﻿cpf_anonimo", '-', LOWER(primeiro_nome));
+    ```
+ 
+  
