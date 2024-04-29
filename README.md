@@ -204,3 +204,6 @@ WHERE
       
       # Exibir o DataFrame
       display(df)
+
+## Anexos do Projeto
+  As imagens das tabelas no Dbeaver e os indicadores gerados com Python estão anexados no projeto
